@@ -1,7 +1,14 @@
 const express = require('express');
+const fileUpload = require('express-fileupload');
+const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3');
 const app = express();
 const port = 3000;
+
+app.use(fileUpload());
+app.use(express.static('public'));
+app.use(express.static('data'));
+app.use(bodyParser.urlencoded({extended: false}));
 
 const db = new sqlite3.Database(
 	'./data/sqlite.db',
@@ -36,11 +43,41 @@ app.get('/songs', (req, res) => {
 
 	db.all(sql, [], (err, rows) => {
 		if (err) {
-			throw err;
+			return res.status(501).send(err);
 		}
+		let data = [];
 		rows.forEach((row) => {
-			res.send(row.name);
+			data.push({
+				id: row.id,
+				name: row.name,
+				artistName: row.artist,
+				albumName: row.album,
+				year: row.year,
+				src: row.image,
+				songSrc: row.audiosource
+			});
 		});
+		res.send(JSON.stringify(data));
+	});
+});
+
+app.post('/song', function(req, res) {
+	let file;
+	let uploadPath;
+	if (!req.files || Object.keys(req.files).length === 0) {
+		return res.status(400).send('No files were uploaded.');
+	}
+	// The name of the input field (i.e. "sampleFile") 
+	//  is used to retrieve the uploaded file
+	file = req.files.songFile;
+	uploadPath = __dirname + '/data/songs/' + file.name;
+	
+	console.log(req.body.name);	
+
+	// Use the mv() method to place the file somewhere on your server
+	file.mv(uploadPath, function(err) {
+		if (err) return res.status(500).send(err);
+		res.send('File uploaded!');
 	});
 });
 
