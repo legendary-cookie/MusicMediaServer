@@ -1,0 +1,19 @@
+{
+  "name": "MusicMediaServer",
+  "version": "1.0.0",
+  "main": "main.js",
+  "repository": "https://github.com/CosmoNetworks/MusicMediaServer.git",
+  "author": "legendary-cookie <github.com@xolley.de>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "sqlite3": "^5.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.14"
+  }
+}
