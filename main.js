@@ -1,7 +1,7 @@
 const express = require('express');
+const fs = require('fs');
 const fileUpload = require('express-fileupload');
 const bodyParser = require('body-parser');
-const sqlite3 = require('sqlite3');
 const app = express();
 const port = 3000;
 
@@ -10,18 +10,10 @@ app.use(express.static('public'));
 app.use(express.static('data'));
 app.use(bodyParser.urlencoded({extended: false}));
 
-const db = new sqlite3.Database(
-	'./data/sqlite.db',
-	sqlite3.OPEN_READWRITE,
-	(err) => {
-		if (err) {
-			return console.error(err.message);
-		}
-		console.log('Connected to the SQlite database.');
-	});
+const db = require('better-sqlite3')('./data/sqlite.db');
 
 function initDb(db) {
-	db.run(`CREATE TABLE IF NOT EXISTS songs(
+	db.exec(`CREATE TABLE IF NOT EXISTS songs(
           id INTEGER NOT NULL, 
           name TEXT NOT NULL, 
           artist TEXT NOT NULL, 
@@ -29,7 +21,7 @@ function initDb(db) {
           year INTEGER NOT NULL, 
           image TEXT NOT NULL, 
           audiosource TEXT NOT NULL, 
-          PRIMARY KEY(id, name))`,
+          PRIMARY KEY(id))`,
 	);
 }
 
@@ -63,32 +55,50 @@ app.get('/songs', (req, res) => {
 
 
 function getHighestId() {
-	db.each('SELECT * FROM songs ORDER BY id DESC LIMIT 0, 1', 
-		function(err, row) {
-			if (err) throw err;
-			return row.id;
-		}
-	);
-	return 0;	
+	const stmt = db.prepare('SELECT MAX(id) AS max_id FROM songs');
+	const max_id = stmt.get().id;
+	if (max_id == undefined) {
+		console.log('No entries, max id is 0 now');
+		return 0;
+	} else {
+		console.log('Highest ID is ' + max_id);
+		return max_id;
+	}
 }
 
 app.post('/song', function(req, res) {
-	let songFile;
 	if (!req.files || Object.keys(req.files).length === 0) {
 		return res.status(400).send('No files were uploaded.');
 	}
 	// The name of the input field (i.e. "sampleFile") 
 	//  is used to retrieve the uploaded file
-	songFile = req.files.songFile;
-	console.log(req.body.name);	
-	const id = getHighestId() + 1;
-	const uploadPath = __dirname + '/data/songs/'+id+'/';
-	
-	songFile.mv(uploadPath + songFile.name, function(err) {
-		if (err) return res.status(500).send(err);
-		res.send('File uploaded!');
+	let songFile = req.files.songFile;
+	let image = req.files.image;
+	const highestId = getHighestId();
+	const id = highestId + 1;
+	const relPath = 'songs/' + id + '/';
+	const uploadPath = __dirname + '/data/' + relPath;
+	fs.mkdirSync(uploadPath, { recursive: true });
+	let errs = [];
+	image.mv(uploadPath + image.name, function(err) {
+		if (err) errs.push(err);
 	});
-
+	songFile.mv(uploadPath + songFile.name, function(err) {
+		if (err) errs.push(err);
+	});
+	
+	let stmt = db.prepare('INSERT INTO songs VALUES (?,?,?,?,?,?,?)');
+	stmt.run(
+		id, req.body.name, req.body.artist, 
+		req.body.album, req.body.year, 
+		'http://localhost:3000/'+relPath+image.name, 
+		'http://localhost:3000/'+relPath+songFile.name
+	);
+	if (errs.length > 0) {
+		return res.status(500).send(JSON.stringify(errs));
+	} else {
+		return res.status(200).send('200 OK');	
+	}
 });
 
 app.listen(port, () => {
