@@ -28,10 +28,6 @@ function initDb(db) {
 	);
 }
 
-app.get('/', (req, res) => {
-	res.send('Hello World From Cosmo Media Server');
-});
-
 app.get('/songs', (req, res) => {
 	const stmt = db.prepare('SELECT * FROM songs ORDER BY name LIMIT ?');
 	let amount = req.query.amount;
