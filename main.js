@@ -61,21 +61,31 @@ app.get('/songs', (req, res) => {
 	});
 });
 
+
+function getHighestId() {
+	db.each('SELECT * FROM songs ORDER BY id DESC LIMIT 0, 1', 
+		function(err, row) {
+			if (err) throw err;
+			return row.id;
+		}
+	);
+	return 0;	
+}
+
 app.post('/song', function(req, res) {
-	let file;
-	let uploadPath;
+	let songFile;
 	if (!req.files || Object.keys(req.files).length === 0) {
 		return res.status(400).send('No files were uploaded.');
 	}
 	// The name of the input field (i.e. "sampleFile") 
 	//  is used to retrieve the uploaded file
-	file = req.files.songFile;
-	uploadPath = __dirname + '/data/songs/' + file.name;
-	
+	songFile = req.files.songFile;
 	console.log(req.body.name);	
-
+	const id = getHighestId() + 1;
+	const uploadPath = __dirname + '/data/songs/'+id;
+	
 	// Use the mv() method to place the file somewhere on your server
-	file.mv(uploadPath, function(err) {
+	songFile.mv(uploadPath + songFile.name, function(err) {
 		if (err) return res.status(500).send(err);
 		res.send('File uploaded!');
 	});
