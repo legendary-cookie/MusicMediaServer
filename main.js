@@ -56,7 +56,7 @@ app.get('/songs', (req, res) => {
 
 function getHighestId() {
 	const stmt = db.prepare('SELECT MAX(id) AS max_id FROM songs');
-	const max_id = stmt.get().id;
+	const max_id = stmt.get().max_id;
 	if (max_id == undefined) {
 		console.log('No entries, max id is 0 now');
 		return 0;
@@ -102,6 +102,6 @@ app.post('/song', function(req, res) {
 });
 
 app.listen(port, () => {
-	console.log(`Example app listening at http://localhost:${port}`);
+	console.log(`Server listening at http://localhost:${port}`);
 	initDb(db);
 });
