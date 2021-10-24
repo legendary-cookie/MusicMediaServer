@@ -2,9 +2,12 @@ const express = require('express');
 const fs = require('fs');
 const fileUpload = require('express-fileupload');
 const bodyParser = require('body-parser');
+const cors = require('cors')
 const app = express();
 const port = 3000;
 
+
+app.use(cors());
 app.use(fileUpload());
 app.use(express.static('public'));
 app.use(express.static('data'));
