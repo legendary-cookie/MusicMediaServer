@@ -47,10 +47,8 @@ function getHighestId() {
 	const stmt = db.prepare('SELECT MAX(id) AS max_id FROM songs');
 	const max_id = stmt.get().max_id;
 	if (max_id == undefined) {
-		console.log('No entries, max id is 0 now');
 		return 0;
 	} else {
-		console.log('Highest ID is ' + max_id);
 		return max_id;
 	}
 }
