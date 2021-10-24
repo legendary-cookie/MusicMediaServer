@@ -82,13 +82,13 @@ app.post('/song', function(req, res) {
 	songFile = req.files.songFile;
 	console.log(req.body.name);	
 	const id = getHighestId() + 1;
-	const uploadPath = __dirname + '/data/songs/'+id;
+	const uploadPath = __dirname + '/data/songs/'+id+'/';
 	
-	// Use the mv() method to place the file somewhere on your server
 	songFile.mv(uploadPath + songFile.name, function(err) {
 		if (err) return res.status(500).send(err);
 		res.send('File uploaded!');
 	});
+
 });
 
 app.listen(port, () => {
