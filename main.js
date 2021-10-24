@@ -30,27 +30,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/songs', (req, res) => {
-	const sql = `SELECT name FROM songs
-           ORDER BY name`;
-
-	db.all(sql, [], (err, rows) => {
-		if (err) {
-			return res.status(501).send(err);
-		}
-		let data = [];
-		rows.forEach((row) => {
-			data.push({
-				id: row.id,
-				name: row.name,
-				artistName: row.artist,
-				albumName: row.album,
-				year: row.year,
-				src: row.image,
-				songSrc: row.audiosource
-			});
-		});
-		res.send(JSON.stringify(data));
-	});
+	const stmt = db.prepare('SELECT name FROM songs ORDER BY name');
+		
 });
 
 
