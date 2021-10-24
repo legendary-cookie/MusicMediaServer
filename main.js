@@ -30,8 +30,13 @@ app.get('/', (req, res) => {
 });
 
 app.get('/songs', (req, res) => {
-	const stmt = db.prepare('SELECT name FROM songs ORDER BY name');
-		
+	const stmt = db.prepare('SELECT * FROM songs ORDER BY name LIMIT ?');
+	let amount = req.query.amount;
+	if (amount == undefined||amount == null) {
+		amount = 10;
+	}
+	const songs = stmt.all(amount);
+	res.status(200).send(JSON.stringify(songs));
 });
 
 
