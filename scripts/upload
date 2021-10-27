@@ -1,5 +1,5 @@
 #!/bin/bash
-url="http://localhost:3000/song"
+url="http://docker1:3000/song"
 
 album=$6
 year=$5
