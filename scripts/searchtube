@@ -1,0 +1,10 @@
+#!/bin/bash
+
+tempfile=$(mktemp)
+youtube_dl_log=$(mktemp)
+
+youtube-dl -j "ytsearch5:$*" > $tempfile
+
+mapfile -t youtube_urls < <(cat $tempfile | jq '.webpage_url' | tr -d '"' )
+
+cat $tempfile | jq '.fulltitle, .webpage_url'
