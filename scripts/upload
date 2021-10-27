@@ -8,4 +8,4 @@ name=$3
 image=$2
 songFile=$1
 
-curl -XPOST -F name="$name" -F songFile=@"$songFile" -F image=@"$image" -F artist="$artist" -F year=1987 -F album="$album" $url
+curl -XPOST -F name="$name" -F songFile=@"$songFile" -F image=@"$image" -F artist="$artist" -F year=$year -F album="$album" $url
