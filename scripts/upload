@@ -1,0 +1,11 @@
+#!/bin/bash
+url="http://localhost:3000/song"
+
+album=$6
+year=$5
+artist=$4
+name=$3
+image=$2
+songFile=$1
+
+curl -XPOST -F name="$name" -F songFile=@"$songFile" -F image=@"$image" -F artist="$artist" -F year=1987 -F album="$album" $url
