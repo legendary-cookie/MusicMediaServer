@@ -36,7 +36,7 @@ function initDb(db) {
 }
 
 app.get('/api/songs', (req, res) => {
-	const stmt = db.prepare('SELECT * FROM songs ORDER BY name LIMIT ?');
+	const stmt = db.prepare('SELECT * FROM songs ORDER BY id LIMIT ?');
 	let amount = req.query.amount;
 	if (amount == undefined||amount == null) {
 		amount = 25;
@@ -45,6 +45,17 @@ app.get('/api/songs', (req, res) => {
 	}
 	const songs = stmt.all(amount);
 	res.status(200).send(JSON.stringify(songs));
+});
+
+app.get('/api/songs/:id', (req, res) => {
+	const stmt = db.prepare('SELECT * FROM songs WHERE id=? LIMIT 1');
+	let id = req.params.id;
+	const songs = stmt.all(id);
+	if (songs.length == 0) {
+		res.status(404).send('404 playlist not found');
+	} else {
+		res.status(200).send(JSON.stringify(songs[0]));
+	}
 });
 
 app.get('/api/playlists', (req, res) => {
@@ -57,6 +68,17 @@ app.get('/api/playlists', (req, res) => {
 	}
 	const playlists = stmt.all(amount);
 	res.status(200).send(JSON.stringify(playlists));
+});
+
+app.get('/api/playlists/:id', (req, res) => {
+	const stmt = db.prepare('SELECT * FROM playlists WHERE id=? LIMIT 1');
+	let id = req.params.id;
+	const playlists = stmt.all(id);
+	if (playlists.length == 0) {
+		res.status(404).send('404 song not found');
+	} else {
+		res.status(200).send(JSON.stringify(playlists[0]));
+	}
 });
 
 app.post('/api/playlists', (req, res) => {
@@ -108,8 +130,8 @@ app.post('/api/songs', function(req, res) {
 	stmt.run(
 		id, req.body.name, req.body.artist, 
 		req.body.album, req.body.year, 
-		relPath+image.name, 
-		relPath+songFile.name
+		image.name, 
+		songFile.name
 	);
 	if (errs.length > 0) {
 		return res.status(500).send(JSON.stringify(errs));
