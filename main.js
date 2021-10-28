@@ -130,6 +130,13 @@ app.post('/api/playlists', (req, res) => {
 });
 
 
+app.delete('/api/playlists', (req, res) => {
+	const stmt = db.prepare('DELETE FROM playlists WHERE id=?');
+	const id = req.query.id;
+	stmt.run(id);
+	res.status(200).send('200 OK');
+});
+
 app.delete('/api/playlists/:id', (req, res) =>{
 	const id = req.params.id;
 	const song = parseInt(req.query.song);
