@@ -24,10 +24,10 @@ Return information for the playlist with the specified ID
 <br>
 Example response:
 <br>
-``json
+```json
 {
   "id": 1,
   "name": "First Playlist",
   "songs": "[8,4]"
 }
-``
+```
