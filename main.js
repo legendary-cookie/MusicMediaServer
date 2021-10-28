@@ -27,40 +27,71 @@ function initDb(db) {
           audiosource TEXT NOT NULL, 
           PRIMARY KEY(id))`,
 	);
+
+	db.exec(`CREATE TABLE IF NOT EXISTS playlists(
+		id INTEGER NOT NULL PRIMARY KEY,
+		name TEXT NOT NULL,
+		songs TEXT NOT NULL
+	)`);
 }
 
-app.get('/songs', (req, res) => {
+app.get('/api/songs', (req, res) => {
 	const stmt = db.prepare('SELECT * FROM songs ORDER BY name LIMIT ?');
 	let amount = req.query.amount;
 	if (amount == undefined||amount == null) {
 		amount = 25;
 	} else if (amount == 'ALL') {
-		amount = getHighestId();
+		amount = getHighestId('songs');
 	}
 	const songs = stmt.all(amount);
 	res.status(200).send(JSON.stringify(songs));
 });
 
-
-function getHighestId() {
-	const stmt = db.prepare('SELECT MAX(id) AS max_id FROM songs');
-	const max_id = stmt.get().max_id;
-	if (max_id == undefined) {
-		return 0;
-	} else {
-		return max_id;
+app.get('/api/playlists', (req, res) => {
+	const stmt = db.prepare('SELECT * FROM playlists ORDER BY id LIMIT ?');
+	let amount = req.query.amount;
+	if (amount == undefined||amount == null) {
+		amount = 25;
+	} else if (amount == 'ALL') {
+		amount = getHighestId('playlists');
 	}
-}
+	const playlists = stmt.all(amount);
+	res.status(200).send(JSON.stringify(playlists));
+});
 
-app.post('/song', function(req, res) {
+app.post('/api/playlists', (req, res) => {
+	const stmt = db.prepare('INSERT INTO playlists VALUES (?,?,?)');
+	const highest = getHighestId('playlists');
+	const id = highest+1;
+	const name = req.query.name;
+	stmt.run(
+		id, name, '[]'
+	);
+	res.status(200).send('200 OK');
+});
+
+
+app.delete('/api/playlists/:id', (req, res) =>{
+	const id = req.params.id;
+	const song = parseInt(req.query.song);
+	delSongFromPlaylist(song, id);
+	res.status(200).send('200 OK');
+});
+
+app.put('/api/playlists/:id', (req, res) =>{
+	const id = req.params.id;
+	const song = parseInt(req.query.song);
+	addSongToPlaylist(song, id);
+	res.status(200).send('200 OK');
+});
+
+app.post('/api/songs', function(req, res) {
 	if (!req.files || Object.keys(req.files).length === 0) {
 		return res.status(400).send('No files were uploaded.');
 	}
-	// The name of the input field (i.e. "sampleFile") 
-	//  is used to retrieve the uploaded file
 	let songFile = req.files.songFile;
 	let image = req.files.image;
-	const highestId = getHighestId();
+	const highestId = getHighestId('songs');
 	const id = highestId + 1;
 	const relPath = 'songs/' + id + '/';
 	const uploadPath = __dirname + '/data/' + relPath;
@@ -77,8 +108,8 @@ app.post('/song', function(req, res) {
 	stmt.run(
 		id, req.body.name, req.body.artist, 
 		req.body.album, req.body.year, 
-		'http://localhost:3000/'+relPath+image.name, 
-		'http://localhost:3000/'+relPath+songFile.name
+		relPath+image.name, 
+		relPath+songFile.name
 	);
 	if (errs.length > 0) {
 		return res.status(500).send(JSON.stringify(errs));
@@ -91,3 +122,41 @@ app.listen(port, () => {
 	console.log(`Server listening at http://localhost:${port}`);
 	initDb(db);
 });
+
+
+function getHighestId(table) {
+	const stmt = db.prepare('SELECT MAX(id) AS max_id FROM ' + table);
+	const max_id = stmt.get().max_id;
+	if (max_id == undefined) {
+		return 0;
+	} else {
+		return max_id;
+	}
+}
+
+function addSongToPlaylist(songID, playlistID) {
+	const stmt = db.prepare('SELECT * FROM playlists WHERE id=?');
+	const songs = stmt.get(playlistID).songs;
+	let parsed = JSON.parse(songs);
+	parsed.push(songID);
+	const string = JSON.stringify(parsed);
+	const stmt2 = db.prepare('UPDATE playlists SET songs=? WHERE id=?');
+	stmt2.run(string, playlistID);
+}
+
+function delSongFromPlaylist(songID, playlistID) {
+	const stmt = db.prepare('SELECT * FROM playlists WHERE id=?');
+	const songs = stmt.get(playlistID).songs;
+	let parsed = JSON.parse(songs);
+	
+	let removeValFromIndex = [];
+	for (let i = parsed.length; i>0; i--) {
+		if (parsed[i] == songID) removeValFromIndex.push(i);
+	}
+	for (var i = removeValFromIndex.length -1; i >= 0; i--) {
+		parsed.splice(removeValFromIndex[i],1);
+	}
+	const string = JSON.stringify(parsed);
+	const stmt2 = db.prepare('UPDATE playlists SET songs=? WHERE id=?');
+	stmt2.run(string, playlistID);
+}
