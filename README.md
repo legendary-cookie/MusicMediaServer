@@ -1,41 +1,31 @@
 # MusicMediaServer
 
-> ## Install
-
-Install with [npm](https://www.npmjs.com/)
+## Installation
 
 ```sh
-$ npm i MusicMediaServer --save-dev
+$ git clone https://github.com/CosmoNetworks/MusicMediaServer && cd MusicMediaServer
+$ yarn install
 ```
 
 ## Usage
 
-```js
-var MusicMediaServer = require('MusicMediaServer');
-```
-
-## Running tests
-
-Install dev dependencies:
-
 ```sh
-$ npm i -d && npm test
+$ yarn start
 ```
 
 ## Contributing
 
 Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/CosmoNetworks/MusicMediaServer/issues)
 
-## Author
+## Authors
 
 **legendary-cookie**
 
-* [github/](https://github.com/)
-* [twitter/](http://twitter.com/)
+* [github](https://github.com/)
 
 ## License
 
-Copyright © 2021 [legendary-cookie](#legendary-cookie)
+Copyright © 2021 [Cosmo Networks](https://github.com/CosmoNetworks)
 Licensed under the MIT license.
 
 ***
