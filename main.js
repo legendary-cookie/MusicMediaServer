@@ -58,6 +58,43 @@ app.get('/api/songs/:id', (req, res) => {
 	}
 });
 
+app.get('/api/search/songs', (req, res) => {
+	let results;
+	let keyword = req.query.keyword;
+	const exact = req.query.exact;
+	if (exact != 'yes') {
+		keyword = '%'+keyword+'%';
+	}
+	switch (req.query.mode) {
+	case 'name': {
+		const stmt = db.prepare('SELECT * FROM songs WHERE (name LIKE ?)');
+		results = stmt.all(keyword);
+		break;
+	}
+	case 'album': {
+		const stmt = db.prepare('SELECT * FROM songs WHERE (album LIKE ?)');
+		results = stmt.all(keyword);
+		break;
+	}
+	case 'artist': {
+		const stmt = db.prepare('SELECT * FROM songs WHERE (artist LIKE ?)');
+		results = stmt.all(keyword);
+		break;
+	}
+	case 'year': {
+		const stmt = db.prepare('SELECT * FROM songs WHERE (artist LIKE ?)');
+		results = stmt.all(keyword);
+		break;
+	}
+	default: {
+		// eslint-disable-next-line max-len
+		res.status(403).send('403 Bad Request');
+		return;
+	}
+	}
+	res.status(200).send(results);
+});
+
 app.get('/api/playlists', (req, res) => {
 	const stmt = db.prepare('SELECT * FROM playlists ORDER BY id LIMIT ?');
 	let amount = req.query.amount;
