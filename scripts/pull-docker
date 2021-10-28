@@ -1,0 +1,2 @@
+#!/bin/bash
+podman pull docker.io/vs07up/mediaserver

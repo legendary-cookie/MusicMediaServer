@@ -1,1 +1,2 @@
+#!/bin/bash
 podman build . -t vs07up/mediaserver
