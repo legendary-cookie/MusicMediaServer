@@ -2,8 +2,6 @@
 
 ## All api paths begin with /api/
 
-### Songs
-
 **GET /api/songs**
 Returns all songs
 <br>
