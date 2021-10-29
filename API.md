@@ -38,5 +38,11 @@ Upload a new song, see [UPLOADING.md](/UPLOADING.md)
 **POST /api/playlists**
 Create a new playlist.
 <br>
-Paramateres:
+Parameters:
 * name: playlist name
+
+**PUT /api/playlists/:id**
+Add a song to the playlist with the specified ID
+<br>
+Parameters:
+* song: song ID
