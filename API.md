@@ -31,3 +31,12 @@ Example response:
   "songs": "[8,4]"
 }
 ```
+
+**POST /api/songs**
+Upload a new song, see [UPLOADING.md](/UPLOADING.md)
+
+**POST /api/playlists**
+Create a new playlist.
+<br>
+Paramateres:
+* name: playlist name
