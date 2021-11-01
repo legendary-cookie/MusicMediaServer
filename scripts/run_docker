@@ -1,1 +1,7 @@
-podman run --name music-ms --restart=always -v ./data:/usr/src/app/data/ -d -p 3000:3000 vs07up/mediaserver
+#!/bin/bash
+podman run \
+	--name music-ms \
+	--restart=always \
+	-v ./data:/usr/src/app/data/ \
+	-d -p 3000:3000 \
+	vs07up/mediaserver
