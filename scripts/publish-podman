@@ -1,1 +1,2 @@
+#!/bin/sh
 podman push vs07up/mediaserver docker.io/vs07up/mediaserver

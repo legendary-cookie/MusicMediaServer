@@ -1,2 +1,2 @@
 #!/bin/bash
-podman pull docker.io/vs07up/mediaserver
+docker pull docker.io/vs07up/mediaserver
