@@ -36,6 +36,7 @@ function initDb(db) {
 }
 
 app.get('/api/songs', (req, res) => {
+	setNoCache(res);
 	const stmt = db.prepare('SELECT * FROM songs ORDER BY id LIMIT ?');
 	let amount = req.query.amount;
 	if (amount == undefined||amount == null) {
@@ -48,6 +49,7 @@ app.get('/api/songs', (req, res) => {
 });
 
 app.get('/api/songs/:id', (req, res) => {
+	setNoCache(res);
 	const stmt = db.prepare('SELECT * FROM songs WHERE id=? LIMIT 1');
 	let id = req.params.id;
 	const songs = stmt.all(id);
@@ -59,6 +61,7 @@ app.get('/api/songs/:id', (req, res) => {
 });
 
 app.get('/api/search/songs', (req, res) => {
+	setNoCache(res);
 	let results;
 	let keyword = req.query.keyword;
 	const exact = req.query.exact;
@@ -96,6 +99,7 @@ app.get('/api/search/songs', (req, res) => {
 });
 
 app.get('/api/playlists', (req, res) => {
+	setNoCache(res);
 	const stmt = db.prepare('SELECT * FROM playlists ORDER BY id LIMIT ?');
 	let amount = req.query.amount;
 	if (amount == undefined||amount == null) {
@@ -108,6 +112,7 @@ app.get('/api/playlists', (req, res) => {
 });
 
 app.get('/api/playlists/:id', (req, res) => {
+	setNoCache(res);
 	const stmt = db.prepare('SELECT * FROM playlists WHERE id=? LIMIT 1');
 	let id = req.params.id;
 	const playlists = stmt.all(id);
@@ -119,6 +124,7 @@ app.get('/api/playlists/:id', (req, res) => {
 });
 
 app.post('/api/playlists', (req, res) => {
+	setNoCache(res);
 	const stmt = db.prepare('INSERT INTO playlists VALUES (?,?,?)');
 	const highest = getHighestId('playlists');
 	const id = highest+1;
@@ -131,6 +137,7 @@ app.post('/api/playlists', (req, res) => {
 
 
 app.delete('/api/playlists', (req, res) => {
+	setNoCache(res);
 	const stmt = db.prepare('DELETE FROM playlists WHERE id=?');
 	const id = req.query.id;
 	stmt.run(id);
@@ -138,6 +145,7 @@ app.delete('/api/playlists', (req, res) => {
 });
 
 app.delete('/api/playlists/:id', (req, res) =>{
+	setNoCache(res);
 	const id = req.params.id;
 	const song = parseInt(req.query.song);
 	delSongFromPlaylist(song, id);
@@ -145,6 +153,7 @@ app.delete('/api/playlists/:id', (req, res) =>{
 });
 
 app.put('/api/playlists/:id', (req, res) =>{
+	setNoCache(res);
 	const id = req.params.id;
 	const song = parseInt(req.query.song);
 	addSongToPlaylist(song, id);
@@ -152,6 +161,7 @@ app.put('/api/playlists/:id', (req, res) =>{
 });
 
 app.post('/api/songs', function(req, res) {
+	setNoCache(res);
 	if (!req.files || Object.keys(req.files).length === 0) {
 		return res.status(400).send('No files were uploaded.');
 	}
@@ -225,4 +235,11 @@ function delSongFromPlaylist(songID, playlistID) {
 	const string = JSON.stringify(parsed);
 	const stmt2 = db.prepare('UPDATE playlists SET songs=? WHERE id=?');
 	stmt2.run(string, playlistID);
+}
+
+function setNoCache(res) {
+	res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+	res.set('Pragma', 'no-cache');
+	res.set('Expires', '0');
+	res.set('Surrogate-Control', 'no-store');
 }
